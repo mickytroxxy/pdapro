@@ -47,5 +47,9 @@ To learn more about developing your project with Expo, look at the following res
 Join our community of developers creating universal apps.
 - [Download the app](https://expo.dev/accounts/empiredigitals/projects/pdapro/builds/fdb73105-7210-408b-b841-7df6bcd4b3bb): Download and test android build.
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Discord community]![Screenshot_1746767326](https://github.com/user-attachments/assets/abd736d4-142d-46f3-9db5-75151046b0bc)
+(https://chat.expo.dev): Chat with Expo users a!![Screenshot_1746767330](https://github.com/user-attachments/assets/59bbbf09-3e9f-46b5-9534-b616508cbf5d)
+[Screenshot_1746767330](https://github.com/user-at![Screenshot_1746767338](https://github.com/user-attachments/assets/9dac4036-9fbe-46b2-9155-f9a75b624219)
+tachments/assets/a4fdc530-32e5-4267-b667-03c278a748f8)
+nd ask questions.
 # pdapro
