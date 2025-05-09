@@ -11,11 +11,15 @@ interface ChatComposerProps {
 const ChatComposer = memo(({ props, keyboardSound, typingSound }: ChatComposerProps) => {
   // Handle keyboard sound on focus
   const handleFocus = useCallback(() => {
+    // Skip audio if not available
+    if (!keyboardSound) return;
+
     try {
-      if (keyboardSound) {
-        keyboardSound.setPositionAsync(0);
-        keyboardSound.playAsync();
-      }
+      keyboardSound.setPositionAsync(0)
+        .then(() => keyboardSound.playAsync())
+        .catch(error => {
+          console.log('Error playing keyboard sound', error);
+        });
     } catch (error) {
       console.log('Error playing keyboard sound', error);
     }
@@ -23,19 +27,22 @@ const ChatComposer = memo(({ props, keyboardSound, typingSound }: ChatComposerPr
 
   // Handle typing sound
   const handleChangeText = useCallback((text: string) => {
-    // Only play typing sound if text is being added (not deleted)
-    if (text.length > (props.text || '').length && typingSound) {
-      try {
-        typingSound.setPositionAsync(0);
-        typingSound.playAsync();
-      } catch (error) {
-        console.log('Error playing typing sound', error);
-      }
-    }
-
-    // Call the original onChangeText
+    // Call the original onChangeText first to ensure UI responsiveness
     if (props.onChangeText) {
       props.onChangeText(text);
+    }
+
+    // Skip audio if not available or if text is being deleted
+    if (!typingSound || text.length <= (props.text || '').length) return;
+
+    try {
+      typingSound.setPositionAsync(0)
+        .then(() => typingSound.playAsync())
+        .catch(error => {
+          console.log('Error playing typing sound', error);
+        });
+    } catch (error) {
+      console.log('Error playing typing sound', error);
     }
   }, [props, typingSound]);
 

@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { PREDEFINED_RESPONSES } from '@/src/constants/predefinedResponses';
 
 // Types for the chat API
@@ -22,10 +21,10 @@ export interface ChatResponse {
 // Mock API service
 export const mockChatApi = {
   // Generate a random thread ID
-  generateThreadId: () => uuidv4(),
+  generateThreadId: () => Math.random().toString(36).substring(2),
 
   // Generate a random assistant ID
-  generateAssistantId: () => uuidv4(),
+  generateAssistantId: () => Math.random().toString(36).substring(2),
 
   // Simulate API response
   simulateResponse: (request: ChatRequest): Promise<ChatResponse[]> => {

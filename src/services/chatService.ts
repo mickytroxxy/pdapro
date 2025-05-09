@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { PREDEFINED_RESPONSES } from '@/src/constants/predefinedResponses';
 import useFetch from '@/src/hooks/useFetch';
 
@@ -24,10 +23,10 @@ export const useChatService = () => {
   const { fetchData } = useFetch();
 
   // Generate a random thread ID
-  const generateThreadId = () => uuidv4();
+  const generateThreadId = () => Math.random().toString(36).substring(2);
   
   // Generate a random assistant ID
-  const generateAssistantId = () => uuidv4();
+  const generateAssistantId = () => Math.random().toString(36).substring(2);
   
   // Simulate API response
   const simulateResponse = async (request: ChatRequest): Promise<ChatResponse[]> => {

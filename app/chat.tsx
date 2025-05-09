@@ -64,58 +64,75 @@ export default function ChatScreen() {
   const dot2Opacity = useRef(new Animated.Value(0.3)).current;
   const dot3Opacity = useRef(new Animated.Value(0.3)).current;
 
-  // Load all sound effects - simplified approach
+  // Load all sound effects with error handling for development builds
   useEffect(() => {
-    // Initialize Audio
-    Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-      shouldDuckAndroid: true,
-    }).catch(error => {
-      console.log('Error setting audio mode:', error);
-    });
+    let isMounted = true;
+    let soundInstance: Audio.Sound | null = null;
 
-    // Create a single sound for all effects to simplify
-    const createSound = async () => {
+    const initializeAudio = async () => {
       try {
-        // Try to load the send sound which we know exists
-        const { sound } = await Audio.Sound.createAsync(
-          require('@/assets/audio/SendMessage_SFX.mp3'),
-          { shouldPlay: false }
-        );
-
-        // Use the same sound for all effects
-        setSendSound(sound);
-        setKeyboardSound(sound);
-        setTypingSound(sound);
-        setBubbleSound(sound);
-
-        // Play the sound once to indicate chat is loaded
-        try {
-          await sound.playAsync();
-        } catch (e) {
-          console.log('Error playing initial sound:', e);
+        // Check if Audio is available
+        if (!Audio || !Audio.Sound) {
+          console.log('Audio module not available');
+          return null;
         }
 
-        return sound;
+        // Initialize Audio
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          shouldDuckAndroid: true,
+        }).catch(error => {
+          console.log('Error setting audio mode:', error);
+        });
+
+        // Try to load the sound
+        try {
+          const { sound } = await Audio.Sound.createAsync(
+            require('@/assets/audio/SendMessage_SFX.mp3'),
+            { shouldPlay: false }
+          );
+
+          if (!isMounted) {
+            sound.unloadAsync().catch(() => {});
+            return null;
+          }
+
+          soundInstance = sound;
+
+          // Set all sound states
+          setSendSound(sound);
+          setKeyboardSound(sound);
+          setTypingSound(sound);
+          setBubbleSound(sound);
+
+          // Try to play the sound once
+          try {
+            await sound.playAsync();
+          } catch (e) {
+            console.log('Error playing initial sound:', e);
+          }
+
+          return sound;
+        } catch (error) {
+          console.log('Error creating sound:', error);
+          return null;
+        }
       } catch (error) {
-        console.log('Error creating sound:', error);
+        console.log('Error initializing audio:', error);
         return null;
       }
     };
 
-    // Create the sound
-    const soundPromise = createSound();
+    // Initialize audio
+    initializeAudio();
 
     // Clean up
     return () => {
-      soundPromise.then(sound => {
-        if (sound) {
-          sound.unloadAsync().catch(error => {
-            console.log('Error unloading sound:', error);
-          });
-        }
-      });
+      isMounted = false;
+      if (soundInstance) {
+        soundInstance.unloadAsync().catch(() => {});
+      }
     };
   }, []);
 
@@ -185,14 +202,17 @@ export default function ChatScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    // Play send sound
-    try {
-      if (sendSound) {
-        await sendSound.setPositionAsync(0); // Reset sound position
-        await sendSound.playAsync();
+    // Play send sound if available
+    if (sendSound) {
+      try {
+        sendSound.setPositionAsync(0)
+          .then(() => sendSound.playAsync())
+          .catch(error => {
+            console.log('Error playing send sound', error);
+          });
+      } catch (error) {
+        console.log('Error playing send sound', error);
       }
-    } catch (error) {
-      console.log('Error playing send sound', error);
     }
 
     // Add the new message to the chat with initial 'sent' status
@@ -296,14 +316,17 @@ export default function ChatScreen() {
             user: GALE_USER,
           };
 
-          // Play bubble sound
-          try {
-            if (bubbleSound) {
-              bubbleSound.setPositionAsync(0);
-              bubbleSound.playAsync();
+          // Play bubble sound if available
+          if (bubbleSound) {
+            try {
+              bubbleSound.setPositionAsync(0)
+                .then(() => bubbleSound.playAsync())
+                .catch(error => {
+                  console.log('Error playing bubble sound', error);
+                });
+            } catch (error) {
+              console.log('Error playing bubble sound', error);
             }
-          } catch (error) {
-            console.log('Error playing bubble sound', error);
           }
 
           // Update messages
